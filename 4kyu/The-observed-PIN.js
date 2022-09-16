@@ -1,5 +1,8 @@
 // TASK LINK >>> https://www.codewars.com/kata/5263c6999e0f40dee200059d/train/javascript
 
+// consider alternative approach with
+// representing locks as 2Darray
+
 // helpers
 
 const adjacentsBuilder = (digit) => {
@@ -15,6 +18,8 @@ const adjacentDigits = (digit) => {
   if (digit === '0') {
     return ['0', '8'];
   }
+  // refactor this condition
+  // or maybe the whole if...else chain logic
   else if (['1', '4', '7'].indexOf(digit) !== -1) {    
     adjacents = adjacentsBuilder(digit).concat([String(Number(digit) + 1)])      
   }
