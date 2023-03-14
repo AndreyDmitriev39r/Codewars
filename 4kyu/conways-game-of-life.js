@@ -11,9 +11,11 @@
 
 const copy2DArray = array => array.map(row => row.slice(0));
 
-const expandCells = (grid, size) => {
+const newGenTemplate = (rows, columns) => copy2DArray(Array(rows).fill(Array(columns).fill(null)));
+
+const expandCells = (grid) => {
   let copyGrid = copy2DArray(grid);
-  const newRow = Array(size + 2).fill(0);
+  const newRow = Array(grid[0].length + 2).fill(0);
   for (let row of copyGrid) {
     row.push(0);
     row.unshift(0);
@@ -31,22 +33,78 @@ const aliveCellNeighbours = (cells, i, j) => {
   ].reduce((aliveCells, neighbour) => neighbour ? aliveCells + 1 : aliveCells, 0);
 };
 
+const topShrinker = (grid) => {
+  let copyGrid = copy2DArray(grid);
+  if (copyGrid[0].some(cell => cell)) {
+    return copyGrid;
+  } else {
+    return topShrinker(copyGrid.slice(1));
+  }
+};
+
+const bottomShrinker = (grid) => {
+  let copyGrid = copy2DArray(grid);
+  if (copyGrid[copyGrid.length - 1].some(cell => cell)) {
+    return copyGrid;
+  } else {
+    return bottomShrinker(copyGrid.slice(0, -1));
+  }
+};
+
+const leftShrinker = (grid) => {
+  let copyGrid = copy2DArray(grid);
+  if (!copyGrid.length) return [];
+  if (copyGrid.some(row => row[0])) {
+    return copyGrid;
+  } else {
+    return leftShrinker(copyGrid.map(row => row.slice(1)));
+  }
+};
+
+const rightShrinker = (grid) => {
+  let copyGrid = copy2DArray(grid);
+  if (!copyGrid.length) return [];
+  if (copyGrid.some(row => row[row.length - 1])) {
+    return copyGrid;
+  } else {
+    return rightShrinker(copyGrid.map(row => row.slice(0, -1)));
+  }
+};
+
 const isEveryOneDead = array2D => !array2D.some(row => row.some(cell => cell));
 
 // main
 
 function getGeneration(cells, generations){
+  // init variable for counting cell's alive neighbours
   let currentCellNeighbours;
-  let copyCells = copy2DArray(cells); 
-  const newGenTemplate = Array(copyCells.length).fill(Array(copyCells.length).fill(null));
-  while (generations > 0) {   
-    if (isEveryOneDead(copyCells)) return [[]];    
-    let expandedCells = expandCells(copyCells, copyCells.length);   
-    let newGen = copy2DArray(newGenTemplate);
-    for (let i = 1; i < copyCells.length + 1; i++) {
-      for (let j = 1; j < copyCells.length + 1; j++) {        
-        currentCellNeighbours = aliveCellNeighbours(expandedCells, i, j);           
-        if (!copyCells[i - 1][j - 1]) {                
+  // init variable for storing new cells generation
+  let newGen;
+  // init variables for temporary grids
+  let paddedPrevGen;
+  let tempGrid;
+  // avoid changing generations param
+  let gens = generations;
+  // !!!!!for first generation => needed copy of cells param
+  let prevGen = copy2DArray(cells);  
+  while (gens > 0) {
+    // !!!!! prevGen would be gathered either from above code for 1st iter or from rewriting at the end of iter
+    // creating size+2(compared to prevGen) copy of prevGen with borders filled with dead cells
+    paddedPrevGen = expandCells(prevGen);
+    // AND for cases when next generation will contain cells in new dimensions, init grid size+2 compared to newGen
+    // >>> for the prupose of counting neighbours with aliveCellNeighbours() utility
+    tempGrid = expandCells(paddedPrevGen);
+    // newGen will be potentially size + 2 compared to prevGen
+    newGen = newGenTemplate(paddedPrevGen.length, paddedPrevGen[0].length);
+
+    // iterating through cells of *tempGrid*(except for border cells,
+    // that's why start and terminal conditions modified) >>> purpose >>> counting neighbours
+    // based on neighbours count, previous state of cell in paddedPrevGen and game rules, updating corresponding values in newGen
+    
+    for (let i = 1; i < tempGrid.length - 1; i++) {
+      for (let j = 1; j < tempGrid.length - 1; j++) {       
+        currentCellNeighbours = aliveCellNeighbours(tempGrid, i, j);        
+        if (!paddedPrevGen[i - 1][j - 1]) {                
           if (currentCellNeighbours === 3) {
             newGen[i - 1][j - 1] = 1
           } else {
@@ -61,10 +119,11 @@ function getGeneration(cells, generations){
         }        
       }      
     }
-    copyCells = newGen;
-    generations--;
-  } 
-  return copyCells;
+    prevGen = rightShrinker(leftShrinker(bottomShrinker(topShrinker(newGen))));
+    gens--;
+  }
+  console.log('returning');
+  return prevGen;
 }
 
 // testing
@@ -82,6 +141,14 @@ const Tests = [
       [0,0,1],
       [1,1,1],
     ]
+  },
+  {
+    cells: [
+      [ 1, 1, 1, 0, 0, 0, 1, 0 ],
+      [ 1, 0, 0, 0, 0, 0, 0, 1 ],
+      [ 0, 1, 0, 0, 0, 1, 1, 1 ],
+    ],
+    gens: 1,
   }
 ]
 
