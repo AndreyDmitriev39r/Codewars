@@ -90,19 +90,18 @@ function getGeneration(cells, generations){
   while (gens > 0) {
     // !!!!! prevGen would be gathered either from above code for 1st iter or from rewriting at the end of iter
     // creating size+2(compared to prevGen) copy of prevGen with borders filled with dead cells
-    paddedPrevGen = expandCells(prevGen);
+    paddedPrevGen = expandCells(prevGen);   
     // AND for cases when next generation will contain cells in new dimensions, init grid size+2 compared to newGen
     // >>> for the prupose of counting neighbours with aliveCellNeighbours() utility
-    tempGrid = expandCells(paddedPrevGen);
+    tempGrid = expandCells(paddedPrevGen);   
     // newGen will be potentially size + 2 compared to prevGen
-    newGen = newGenTemplate(paddedPrevGen.length, paddedPrevGen[0].length);
-
+    newGen = newGenTemplate(paddedPrevGen.length, paddedPrevGen[0].length);    
     // iterating through cells of *tempGrid*(except for border cells,
     // that's why start and terminal conditions modified) >>> purpose >>> counting neighbours
     // based on neighbours count, previous state of cell in paddedPrevGen and game rules, updating corresponding values in newGen
     
     for (let i = 1; i < tempGrid.length - 1; i++) {
-      for (let j = 1; j < tempGrid.length - 1; j++) {       
+      for (let j = 1; j < tempGrid[0].length - 1; j++) {     
         currentCellNeighbours = aliveCellNeighbours(tempGrid, i, j);        
         if (!paddedPrevGen[i - 1][j - 1]) {                
           if (currentCellNeighbours === 3) {
@@ -118,11 +117,10 @@ function getGeneration(cells, generations){
           }         
         }        
       }      
-    }
+    }    
     prevGen = rightShrinker(leftShrinker(bottomShrinker(topShrinker(newGen))));
     gens--;
-  }
-  console.log('returning');
+  }  
   return prevGen;
 }
 
@@ -148,7 +146,7 @@ const Tests = [
       [ 1, 0, 0, 0, 0, 0, 0, 1 ],
       [ 0, 1, 0, 0, 0, 1, 1, 1 ],
     ],
-    gens: 1,
+    gens: 16,
   }
 ]
 
