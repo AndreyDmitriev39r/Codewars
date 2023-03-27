@@ -47,6 +47,13 @@ const changeCaseForEven = text => {
   return newText;
 };
 
+// concise approach for case swapping
+
+// const text = "HELLO";
+// const inverted = text.replace(/[a-zA-Z]{2}/g, ([i, c]) => 
+//      i + String.fromCharCode((c.charCodeAt(0) & 32 ^ 32) | c.charCodeAt(0) & 223));
+// console.log(inverted); //= "HeLlO";
+
 const getKeyfromValue = (searchValue, dict) => {
   for (let [key, value] of dict.entries()) {
     if (value === searchValue) return key;
