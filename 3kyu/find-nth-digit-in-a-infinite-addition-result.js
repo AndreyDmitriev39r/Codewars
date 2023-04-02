@@ -72,10 +72,10 @@ const getDigitsFromNatSequence2 = (n) => {
 
 // ~~~~~~test block for getDigitsFromNatSequence2
 
-let natSequence = "";
-for (let i = 1; i < 100; i++) {
-  natSequence += i;
-};
+// let natSequence = "";
+// for (let i = 1; i < 100; i++) {
+//   natSequence += i;
+// };
 // console.log(natSequence)
 
 // for n === x >>> results should be [natSequence[x], natSequence[x + 1]]
@@ -131,10 +131,10 @@ const getDigitsFromSquareSequence2 = (n) => {
 
 // ~~~~test block for getDigitsFromSquareSequence2
 
-let sqSequence = "";
-for (let i = 1; i < 30; i++) {
-  sqSequence += i ** 2;  
-}
+// let sqSequence = "";
+// for (let i = 1; i < 30; i++) {
+//   sqSequence += i ** 2;  
+// }
 // console.log(sqSequence);
 // for n === x >>> results should be [natSequence[x], natSequence[x + 1]]
 
@@ -149,27 +149,129 @@ for (let i = 1; i < 30; i++) {
 // };
 // UNCOMMENT ABOVE
 
-
 // ~~~~end of test block for getDigitsFromSquareSequence2
 
+// PERFOMANCE EFFORT
+
+const getSubSequenceSize = subSequence => 9 * Math.pow(10, subSequence - 1) * subSequence;
+
+const getNthDigitFromNaturals = (n) => {
+  // according to task, indexes in sequence are zero-based, but it is easier to proceed as if it is 1-based
+  const position = n + 1;
+  let previousLengthDigits = 0;
+  let previousLengthNumbers = 0;
+  //subsequence = 1 >>> means n somewhere in 123456789; subsequence = 2 >>> means n somewhere in 10...99
+  let subSequence = 1;
+  while (position > getSubSequenceSize(subSequence) + previousLengthDigits) {    
+    previousLengthDigits += getSubSequenceSize(subSequence);
+    previousLengthNumbers += 9 * Math.pow(10, subSequence - 1);    
+    subSequence++;
+  };
+  // console.log('position', position, "previouslennum", previousLengthNumbers)
+  // console.log(subSequence, previousLengthinDigits);
+  // at this point we know where n belongs: 1-digit, 2-digit or whatever n-digit subsequence
+  const positionInSubSequence = position - previousLengthDigits;
+  // further step >>> find which number holds nth digit  
+  const nthNumberInSubSequence = Math.ceil(positionInSubSequence / subSequence);
+  // console.log(nthNumberInSubSequence);
+  // NOW we need to find 2 things - position of digit in the number(idea - use subtraction)
+  const posOfDigitInNthNumber = positionInSubSequence - ((nthNumberInSubSequence - 1) * subSequence);
+  // console.log(posOfDigitInNthNumber);
+  const num = previousLengthNumbers + nthNumberInSubSequence;
+  return Number(num.toString()[posOfDigitInNthNumber - 1]);
+};
+
+// END OF PERFOMANCE EFFORT 3
+
+// PERFOMANCE EFFORT 4
+
+const getLargestNDigitSquarePos = (digit) => {
+  const rawValue = Math.sqrt((Math.pow(10, digit)));
+  return Number.isInteger(rawValue) ? rawValue - 1
+    : Math.floor(rawValue);
+}
+
+const getSquareSubSequenceLength = (sequence) =>
+  (getLargestNDigitSquarePos(sequence) - getLargestNDigitSquarePos(sequence - 1)) * sequence;
+
+// for (let i = 1; i < 5; i++) {
+//   console.log(getLargestNDigitSquarePos(i));
+//   console.log(getSquareSubSequenceLength(i));
+//   console.log("*".repeat(20));
+// }
+
+const getNthDigitFromSquares = (n) => {
+  const position = n + 1;
+  let previousLengthDigits = 0;
+  let previousLengthNumbers = 0;
+  let subSequence = 1;
+  while (position > getSquareSubSequenceLength(subSequence) + previousLengthDigits) {
+    previousLengthDigits += getSquareSubSequenceLength(subSequence);
+    previousLengthNumbers += getLargestNDigitSquarePos(subSequence);
+    subSequence++;
+  }
+  // console.log(`n === ${n}`);
+  // console.log(`position === ${position}`);
+  // console.log(`subsequence === ${subSequence}`);
+  const positionInSubSequence = position - previousLengthDigits;
+  // console.log(positionInSubSequence);
+  const nthNumberInSubSequence = Math.ceil(positionInSubSequence / subSequence);
+  // console.log(nthNumberInSubSequence);
+  const posOfDigitInNthNumber = positionInSubSequence - ((nthNumberInSubSequence - 1) * subSequence);
+  const num = (getLargestNDigitSquarePos(subSequence - 1) + nthNumberInSubSequence) ** 2;
+  // console.log(num)
+  return Number(num.toString()[posOfDigitInNthNumber - 1]);
+}
+
+// 149.162536496481.100121144169......
+
+// for (let i = 0; i < 26; i++) {
+//   console.log(getNthDigitFromSquares(i));
+//   console.log('*'.repeat(16));
+// }
+
+// END OF PERFOMANCE EFFORT 4
+
+const getTail = (n) => {
+  if (getNthDigitFromSquares(n + 1) + getNthDigitFromNaturals(n + 1) !== 9) {
+    return 0;
+  } else {
+    console.log('diving into recursion', n);
+    return getTail(n + 1) + getNthDigitFromSquares(n + 2) + getNthDigitFromNaturals(n + 2) >= 10
+      ? 1 : 0;
+  }
+};
+
 const findDigit = (n) => {  
-  const [natLeft, natRight] = getDigitsFromNatSequence2(n);
-  const [sqLeft, sqRight] = getDigitsFromSquareSequence2(n);
-  let result = natLeft + sqLeft;
-  result += natRight + sqRight >= 10 ? 1 : 0;
+  const [natLeft, natRight] = [getNthDigitFromNaturals(n), getNthDigitFromNaturals(n + 1)];
+  const [sqLeft, sqRight] = [getNthDigitFromSquares(n), getNthDigitFromSquares(n + 1)];  
+  let result = natLeft + sqLeft;  
+  const tail = getTail(n);  
+  result += tail + natRight + sqRight >= 10 ? 1 : 0;
   return result < 10 ? result : result - 10;
 }
 
 // test cases
 
-const sum = '272619325597593231536305887388';
-let expected; 
-let result;
-for (let i = 0; i < sum.length; i++) {
-  [expected, result] = [sum[i], findDigit(i)];
-  console.log(`CASE ${i}`)
-  console.log(`expected: ${expected}`)
-  console.log(`fact: ${result}`);
-  console.log(expected == result);
-  console.log(`*************`);
-}
+// const sum = '272619325597593231536305887388';
+// let expected; 
+// let result;
+// for (let i = 0; i < sum.length; i++) {
+//   [expected, result] = [sum[i], findDigit(i)];
+//   console.log(`CASE ${i}`)
+//   console.log(`expected: ${expected}`)
+//   console.log(`fact: ${result}`);
+//   console.log(expected == result);
+//   console.log(`*************`);
+// };
+
+// console.log([getNthDigitFromNaturals(58), getNthDigitFromNaturals(58 + 1), getNthDigitFromNaturals(58 + 2)])
+// console.log([getNthDigitFromSquares(58), getNthDigitFromSquares(58 + 1), getNthDigitFromSquares(58 + 2)])
+
+
+let num = 2047940868;
+
+console.log(getNthDigitFromNaturals(num), getNthDigitFromNaturals(num + 1), getNthDigitFromNaturals(num + 2));
+console.log(getNthDigitFromSquares(num), getNthDigitFromSquares(num + 1), getNthDigitFromSquares(num + 2));
+
+console.log(findDigit(num)); //expected 4 >>> fact 3
