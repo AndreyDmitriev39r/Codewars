@@ -39,9 +39,13 @@ const getNthDigitFromSquares = (n) => {
     subSequence++;
   }  
   const positionInSubSequence = position - resultLengthDigits;  
-  const nthNumberInSubSequence = Math.ceil(positionInSubSequence / subSequence);  
+  const nthNumberInSubSequence = Math.ceil(positionInSubSequence / subSequence);
+  console.log(`nthNuminsubseq`, nthNumberInSubSequence);
   const posOfDigitInNthNumber = positionInSubSequence - ((nthNumberInSubSequence - 1) * subSequence);
-  const num = (getLargestNDigitSquarePos(subSequence - 1) + nthNumberInSubSequence) ** 2;  
+  console.log(posOfDigitInNthNumber);
+  console.log(getLargestNDigitSquarePos(subSequence - 1) + nthNumberInSubSequence);
+  const num = (getLargestNDigitSquarePos(subSequence - 1) + nthNumberInSubSequence) ** 2;
+  console.log(num);
   return Number(num.toString()[posOfDigitInNthNumber - 1]);
 }
 
@@ -70,18 +74,32 @@ const findDigit = (n) => {
 
 // test cases
 
-const sum = '272619325597593231536305887388';
-let expected; 
-let result;
-for (let i = 0; i < sum.length; i++) {
-  [expected, result] = [sum[i], findDigit(i)];
-  console.log(`CASE ${i}`)
-  console.log(`expected: ${expected}`)
+// const sum = '272619325597593231536305887388';
+// let expected; 
+// let result;
+// for (let i = 0; i < sum.length; i++) {
+//   [expected, result] = [sum[i], findDigit(i)];
+//   console.log(`CASE ${i}`)
+//   console.log(`expected: ${expected}`)
+//   console.log(`fact: ${result}`);
+//   console.log(expected == result);
+//   console.log(`*************`);
+// };
+
+// n = 1793477932 
+
+const failedCases = [
+  {n: 2010400550, expected: 7},
+  {n: 1905458700, expected: 1},
+  {n: 1793477932, expected: 9},
+
+];
+
+for (let test of failedCases) {
+  let result = findDigit(test.n);
+  console.log(`CASE ${test.n}`);
+  console.log(`expected: ${test.expected}`)
   console.log(`fact: ${result}`);
-  console.log(expected == result);
+  console.log(test.expected == result);
   console.log(`*************`);
 };
-
-let num = 410007382 ;
-
-console.log(findDigit(num)); 
