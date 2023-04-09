@@ -20,9 +20,11 @@
 
 
 // 106 char solution
-const zeroOrOne=(n,s)=>s.reduce((a,e)=>a.map((b,i)=>b+e[i]),Array(s[0].length).fill(0)).map(e=>e<n/2?0:1);
+// const zeroOrOne=(n,s)=>s.reduce((a,e)=>a.map((b,i)=>b+e[i]),Array(s[0].length).fill(0)).map(e=>e<n/2?0:1);
 
-// const zeroOrOne=(n,s)=>s.map(e=>e.reduce((a,b)=>a+b))
+// 65 char solution - 1 char off
+
+zeroOrOne=(n,s)=>s[0].map((e,i)=>s.reduce((a,e)=>a+e[i],0)>n/2|0)
 
 let a = zeroOrOne(5,[
   [1,0,0,0,0], 
