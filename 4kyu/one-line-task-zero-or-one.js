@@ -24,7 +24,11 @@
 
 // 65 char solution - 1 char off
 
-zeroOrOne=(n,s)=>s[0].map((e,i)=>s.reduce((a,e)=>a+e[i],0)>n/2|0)
+// zeroOrOne=(n,s)=>s[0].map((e,i)=>s.reduce((a,b)=>a+b[i],0)>n/2|0)
+
+zeroOrOne=(n,s)=>s.reduce((a,b)=>a.map((c,d)=>c+b[d]))
+
+
 
 let a = zeroOrOne(5,[
   [1,0,0,0,0], 
@@ -37,3 +41,10 @@ let b =zeroOrOne(1,[[1,1,0,1]])//[1, 1, 0, 1]
 console.log(a);
 console.log(b);
 //  [0, 0, 0, 0, 0]
+
+let c = zeroOrOne(3, [
+  [1,0,1,0,1], 
+  [1,0,1,0,1], 
+  [0,1,0,1,0]])
+
+  console.log(c);
